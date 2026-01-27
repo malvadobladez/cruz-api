@@ -90,7 +90,7 @@ services:
 
 
 
-DTZ=America/Toronto
-APD=/volume2/docker/web
-HOME_ZONE=home.dacruz.ca
-SERVICE_ZONE=service.dacruz.ca
+#DTZ=America/Toronto
+#APD=/volume2/docker/web
+#HOME_ZONE=home.dacruz.ca
+#SERVICE_ZONE=service.dacruz.ca
