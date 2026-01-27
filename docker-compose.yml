@@ -1,0 +1,96 @@
+version: "3.9"
+
+# -------------------------------------------------
+# Centralized DNS definition
+# -------------------------------------------------
+x-dns: &dns /volume2/docker/scripts/resolv.conf:/etc/resolv.conf:ro
+
+# -------------------------------------------------
+# Network (external macvlan created in Synology)
+# -------------------------------------------------
+networks:
+  macvlan-nas:
+    external: true
+
+# -------------------------------------------------
+# Common Traefik labels
+# -------------------------------------------------
+x-traefik-common: &traefik-common
+  traefik.enable: "true"
+  traefik.docker.network: "macvlan-nas"
+
+# -------------------------------------------------
+# Common DNS automation labels
+# -------------------------------------------------
+x-dns-common: &dns-common
+  dns.enable: "true"
+  dns.ingress.target: "traefik.home.dacruz.ca"
+
+# -------------------------------------------------
+# SERVICE REGISTRY · LANDING (TOP-LEVEL ANCHORS)
+# NOTE: YAML anchors cannot be referenced as "landing.name".
+# Use separate anchors for each atomic value.
+# -------------------------------------------------
+#postgrestest
+x-postgres-name:   &postgres_name   postgrestest
+x-postgres-ip:     &postgres_ip     192.168.9.120
+x-postgres-port:   &postgres_port   "5432"
+x-postgres-direct: &postgres_direct "postgres.${HOME_ZONE}"
+x-postgres-ingress: &postgres_ingress "postgres.${SERVICE_ZONE}"
+#api
+x-api-name:   &api_name   api
+x-api-ip:     &api_ip     192.168.9.121
+x-api-port:   &api_port   "8000"
+x-api-direct: &api_direct "api.${HOME_ZONE}"
+x-api-ingress: &api_ingress "api.${SERVICE_ZONE}"
+
+
+# -------------------------------------------------
+# SERVICES
+# -------------------------------------------------
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      TZ: ${DTZ}
+      POSTGRES_DB: herbs
+      POSTGRES_USER: herbs
+      POSTGRES_PASSWORD: Welcome123!!
+    volumes:
+      - *dns
+      - ${APD}/postgres:/var/lib/postgresql/data
+    networks:
+      macvlan-nas:
+          ipv4_address: *postgres_ip
+    labels:
+      <<: [*dns-common ]
+      dns.direct.domain: *postgres_direct
+      dns.direct.ip: *postgres_ip
+      dns.ingress.domain: *postgres_ingress
+
+  api:
+    image: ghcr.io/malvadobladez/cruz-api:latest
+    volumes:
+      - *dns
+    networks:
+      macvlan-nas:
+          ipv4_address: *api_ip
+    depends_on:
+      - postgres
+    labels:
+      <<: [*traefik-common, *dns-common ]
+      traefik.http.routers.api.rule: "Host(`api.${SERVICE_ZONE}`)"
+      traefik.http.services.api.loadbalancer.server.port: *api_port
+      dns.direct.domain: *api_direct
+      dns.direct.ip: *api_ip
+      dns.ingress.domain: *api_ingress
+  
+
+
+
+
+
+DTZ=America/Toronto
+APD=/volume2/docker/web
+HOME_ZONE=home.dacruz.ca
+SERVICE_ZONE=service.dacruz.ca
