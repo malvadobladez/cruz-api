@@ -29,9 +29,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./api
+          context: .
+          file: api/Dockerfile
           push: true
           tags: |
             ghcr.io/malvadobladez/cruz-api:latest
             ghcr.io/malvadobladez/cruz-api:${{ github.sha }}
-#test for Chat
+            
