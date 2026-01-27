@@ -2,17 +2,18 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from api.models import Item  # adjust import if needed
+from api.db.models import Herb
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable not set")
 
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
 LB_TO_G = 453.592
 
-ITEMS = [
-    # name, purchase_cost, purchase_quantity_g
+HERBS = [
     ("Anise Star Whole", 9.99, 114),
     ("Arnica Flower Whole", 11.99, 114),
     ("Ashwagandha Root C/S", 21.99, LB_TO_G),
@@ -66,25 +67,21 @@ ITEMS = [
 def seed():
     session = Session()
 
-    for name, cost, qty in ITEMS:
-        exists = session.query(Item).filter_by(name=name).first()
-        if exists:
+    for name, cost, grams in HERBS:
+        existing = session.query(Herb).filter_by(name=name).first()
+        if existing:
             continue
 
-        item = Item(
+        herb = Herb(
             name=name,
-            category="herb",
-            purchase_cost=round(cost, 4),
-            purchase_quantity=round(qty, 4),
-            purchase_unit="g",
-            cost_per_unit=round(cost / qty, 6),
-            active=True,
+            cost_per_gram=round(cost / grams, 4),
+            is_active=True,
         )
-        session.add(item)
+        session.add(herb)
 
     session.commit()
     session.close()
-    print("Item seeding complete")
+    print("Herb seeding complete")
 
 if __name__ == "__main__":
     seed()
