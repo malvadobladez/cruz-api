@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from models import Item  # adjust import if needed
+from api.models import Item  # adjust import if needed
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
