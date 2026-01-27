@@ -7,13 +7,21 @@ from alembic import context
 
 import os
 
+config = context.config
+
+database_url = os.getenv("DATABASE_URL")
+if not database_url:
+    raise RuntimeError("DATABASE_URL environment variable is not set")
+
+config.set_main_option("sqlalchemy.url", str(database_url))
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
-config.set_main_option(
-    "sqlalchemy.url",
-    os.getenv("DATABASE_URL")
-)
+#config = context.config
+#config.set_main_option(
+#    "sqlalchemy.url",
+#    os.getenv("DATABASE_URL")
+#)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
