@@ -1,43 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Tea Costing</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 2rem;
-        }
-        table {
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 0.5rem 1rem;
-            text-align: left;
-        }
-        th {
-            background: #f4f4f4;
-        }
-    </style>
+    <title>Herbs</title>
 </head>
 <body>
+    <h1>Herbs</h1>
 
-<h1>Herbs</h1>
-
-<table>
-    <tr>
-        <th>Name</th>
-        <th>Cost per gram</th>
-    </tr>
-    {% for herb in herbs %}
-    <tr>
-        <td>{{ herb.name }}</td>
-        <td>${{ "%.4f"|format(herb.cost_per_gram) }}</td>
-    </tr>
-    {% endfor %}
-</table>
-
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Cost / gram</th>
+        </tr>
+        {% for herb in herbs %}
+        <tr>
+            <td>{{ herb.name }}</td>
+            <td>${{ "%.4f"|format(herb.cost_per_gram) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
