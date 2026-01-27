@@ -34,3 +34,4 @@ jobs:
           tags: |
             ghcr.io/malvadobladez/cruz-api:latest
             ghcr.io/malvadobladez/cruz-api:${{ github.sha }}
+#test for Chat
