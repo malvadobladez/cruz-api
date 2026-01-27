@@ -33,4 +33,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/malvadobladez/cruz-api:latest
-            ghcr.io/malvadobladez/cruz-api:${{ github.sha }}
+            ghcr.io/malvadobladez/cruz-api:${{ github.sha 
