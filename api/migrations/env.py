@@ -12,7 +12,7 @@ import os
 config = context.config
 config.set_main_option(
     "sqlalchemy.url",
-    os.environ["DATABASE_URL"]
+    os.getenv("DATABASE_URL")
 )
 
 # Interpret the config file for Python logging.
