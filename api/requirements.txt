@@ -1,6 +1,6 @@
 fastapi
-jinja2
 uvicorn[standard]
+jinja2
 sqlalchemy
 alembic
 psycopg2-binary
