@@ -29,8 +29,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: api/Dockerfile
+          context: ./api
+          file: ./api/Dockerfile
           push: true
           tags: |
             ghcr.io/malvadobladez/cruz-api:latest
