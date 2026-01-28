@@ -2,12 +2,11 @@ name: Build & Push Cruz API
 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       packages: write
@@ -29,7 +28,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./api
+          context: .
           file: ./api/Dockerfile
           push: true
           tags: |

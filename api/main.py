@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -9,8 +11,8 @@ from api.routes import herbs, blends
 
 app = FastAPI()
 
-# IMPORTANT: running from /app, templates live at /app/api/templates
-templates = Jinja2Templates(directory="api/templates")
+BASE_DIR = Path(__file__).resolve().parent
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
 @app.get("/health")
@@ -26,13 +28,9 @@ def index(request: Request, db: Session = Depends(get_db)):
         .order_by(Herb.name)
         .all()
     )
-
     return templates.TemplateResponse(
         "index.html",
-        {
-            "request": request,
-            "herbs": herbs_list,
-        },
+        {"request": request, "herbs": herbs_list},
     )
 
 
