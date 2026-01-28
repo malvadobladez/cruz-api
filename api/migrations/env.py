@@ -16,7 +16,7 @@ config.set_main_option("sqlalchemy.url", str(database_url))
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from db.models import Base  # IMPORTANT: no "api." prefix
+from api.db.models import Base 
 target_metadata = Base.metadata
 
 
