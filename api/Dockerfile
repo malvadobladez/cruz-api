@@ -6,9 +6,9 @@ ENV PYTHONPATH=/app
 
 WORKDIR /app
 
-COPY api/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY api /app/api
+COPY . .
 
-CMD ["sh", "-c", "alembic -c /app/api/alembic.ini upgrade head && uvicorn api.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "alembic -c alembic.ini upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]

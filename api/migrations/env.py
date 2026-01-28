@@ -1,31 +1,40 @@
 from logging.config import fileConfig
 import os
-import sys
-from pathlib import Path
 
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-# ---- make sure /app is on sys.path so "import api.*" always works
-APP_DIR = Path("/app")
-if str(APP_DIR) not in sys.path:
-    sys.path.insert(0, str(APP_DIR))
-
+# -------------------------------------------------
+# Alembic Config
+# -------------------------------------------------
 config = context.config
 
-database_url = os.getenv("DATABASE_URL")
-if not database_url:
-    raise RuntimeError("DATABASE_URL environment variable is not set")
-
-config.set_main_option("sqlalchemy.url", database_url)
-
+# -------------------------------------------------
+# Logging
+# -------------------------------------------------
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from api.db.models import Base  # noqa: E402
+# -------------------------------------------------
+# Database URL (REQUIRED)
+# -------------------------------------------------
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set")
+
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
+
+# -------------------------------------------------
+# Import SQLAlchemy metadata
+# IMPORTANT: NO api.* imports here
+# -------------------------------------------------
+from db.models import Base  # noqa: E402
+
 target_metadata = Base.metadata
 
-
+# -------------------------------------------------
+# Offline migrations
+# -------------------------------------------------
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -38,21 +47,28 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-
+# -------------------------------------------------
+# Online migrations
+# -------------------------------------------------
 def run_migrations_online() -> None:
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+        )
 
         with context.begin_transaction():
             context.run_migrations()
 
-
+# -------------------------------------------------
+# Entrypoint
+# -------------------------------------------------
 if context.is_offline_mode():
     run_migrations_offline()
 else:
