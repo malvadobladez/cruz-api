@@ -3,6 +3,9 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# 🔑 THIS IS THE FIX
+ENV PYTHONPATH=/app
+
 WORKDIR /app
 
 COPY api/requirements.txt ./requirements.txt
