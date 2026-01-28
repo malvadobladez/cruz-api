@@ -2,7 +2,7 @@ name: Build & Push Cruz API
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -35,4 +35,3 @@ jobs:
           tags: |
             ghcr.io/malvadobladez/cruz-api:latest
             ghcr.io/malvadobladez/cruz-api:${{ github.sha }}
-            

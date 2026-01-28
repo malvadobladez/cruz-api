@@ -3,12 +3,14 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from db.session import get_db
-from db.models import Herb
-from routes import blends  # keep blends router you already have
+from api.db.session import get_db
+from api.db.models import Herb
+from api.routes import herbs, blends
 
 app = FastAPI()
-templates = Jinja2Templates(directory="templates")
+
+# IMPORTANT: running from /app, templates live at /app/api/templates
+templates = Jinja2Templates(directory="api/templates")
 
 
 @app.get("/health")
@@ -18,9 +20,9 @@ def health():
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request, db: Session = Depends(get_db)):
-    herbs = (
+    herbs_list = (
         db.query(Herb)
-        .filter(Herb.is_active == True)  # noqa: E712
+        .filter(Herb.is_active == True)
         .order_by(Herb.name)
         .all()
     )
@@ -29,9 +31,10 @@ def index(request: Request, db: Session = Depends(get_db)):
         "index.html",
         {
             "request": request,
-            "herbs": herbs,
+            "herbs": herbs_list,
         },
     )
 
 
+app.include_router(herbs.router)
 app.include_router(blends.router)
