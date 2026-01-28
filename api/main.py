@@ -5,24 +5,18 @@ from sqlalchemy.orm import Session
 
 from api.db.session import get_db
 from api.db.models import Herb
-from api.routes import herbs, blends  # blends already created
+from api.routes import herbs, blends
 
 app = FastAPI()
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="api/templates")
 
 
-# -------------------------
-# Health
-# -------------------------
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 
-# -------------------------
-# Web UI (server-rendered)
-# -------------------------
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request, db: Session = Depends(get_db)):
     herbs = (
@@ -41,8 +35,5 @@ def index(request: Request, db: Session = Depends(get_db)):
     )
 
 
-# -------------------------
-# Routers
-# -------------------------
 app.include_router(herbs.router)
 app.include_router(blends.router)
