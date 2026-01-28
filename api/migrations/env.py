@@ -1,17 +1,25 @@
-from logging.config import fileConfig
-import os
+from __future__ import annotations
 
-from sqlalchemy import engine_from_config, pool
+import os
+import sys
+from pathlib import Path
+from logging.config import fileConfig
+
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # -------------------------------------------------
-# Alembic Config
+# Ensure imports work no matter where alembic runs from
+# -------------------------------------------------
+# env.py is: /app/api/migrations/env.py
+# we want PYTHONPATH to include: /app
+PROJECT_ROOT = Path(__file__).resolve().parents[2].parent  # /app
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# -------------------------------------------------
+# Alembic config + logging
 # -------------------------------------------------
 config = context.config
-
-# -------------------------------------------------
-# Logging
-# -------------------------------------------------
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -25,34 +33,33 @@ if not DATABASE_URL:
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # -------------------------------------------------
-# Import SQLAlchemy metadata
-# IMPORTANT: NO api.* imports here
+# Metadata for autogenerate
 # -------------------------------------------------
-from db.models import Base  # noqa: E402
+from api.db.models import Base  # noqa: E402
 
 target_metadata = Base.metadata
 
-# -------------------------------------------------
-# Offline migrations
-# -------------------------------------------------
+
 def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        compare_type=True,
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
-# -------------------------------------------------
-# Online migrations
-# -------------------------------------------------
+
 def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        config.get_section(config.config_ini_section) or {},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
@@ -61,14 +68,13 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
+            compare_type=True,
         )
 
         with context.begin_transaction():
             context.run_migrations()
 
-# -------------------------------------------------
-# Entrypoint
-# -------------------------------------------------
+
 if context.is_offline_mode():
     run_migrations_offline()
 else:
