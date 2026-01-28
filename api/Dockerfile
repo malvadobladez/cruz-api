@@ -6,9 +6,11 @@ ENV PYTHONPATH=/app
 
 WORKDIR /app
 
-COPY api/requirements.txt .
+# Build context is ./api, so requirements.txt is at the root of the context
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY api ./api
+# Copy the whole ./api context into /app/api so imports like "api.db..." work
+COPY . ./api
 
-CMD ["sh", "-c", "cd /app/api && alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "cd /app/api && alembic -c alembic.ini upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
