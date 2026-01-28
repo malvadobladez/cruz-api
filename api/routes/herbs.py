@@ -7,7 +7,7 @@ from api.db.models import Herb
 router = APIRouter(prefix="/api/herbs", tags=["herbs"])
 
 
-@router.get("")
+@router.get("/")
 def list_herbs(db: Session = Depends(get_db)):
     return (
         db.query(Herb)
