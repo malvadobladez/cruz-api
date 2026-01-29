@@ -1,10 +1,6 @@
-from sqlalchemy import (
-    Column, Integer, String, Numeric, Boolean,
-    ForeignKey, Text
-)
-from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, Numeric, DateTime
 from sqlalchemy.sql import func
-from sqlalchemy.types import DateTime
+from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
@@ -13,25 +9,18 @@ class Herb(Base):
     __tablename__ = "herbs"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    sku = Column(String, nullable=True)
+    supplier = Column(String, nullable=True)
+
     cost_per_gram = Column(Numeric(10, 4), nullable=False)
-    supplier = Column(String)
-    sku = Column(String)
+    markup_percent = Column(Numeric(5, 2), nullable=False, server_default="0")
+
     is_active = Column(Boolean, default=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-
-class Blend(Base):
-    __tablename__ = "blends"
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
-    notes = Column(Text)
-
-
-class BlendItem(Base):
-    __tablename__ = "blend_items"
-
-    blend_id = Column(Integer, ForeignKey("blends.id"), primary_key=True)
-    herb_id = Column(Integer, ForeignKey("herbs.id"), primary_key=True)
-    grams = Column(Numeric(10, 2), nullable=False)
+    @property
+    def sell_price_per_gram(self):
+        return float(self.cost_per_gram) * (1 + float(self.markup_percent) / 100)
+    

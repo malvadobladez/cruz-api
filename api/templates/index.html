@@ -2,21 +2,48 @@
 <html>
 <head>
     <title>Herbs</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 6px; }
+        input { width: 80px; }
+    </style>
 </head>
 <body>
-    <h1>Herbs</h1>
+<h1>Herbs</h1>
 
-    <table border="1">
+<table>
+    <thead>
         <tr>
             <th>Name</th>
-            <th>Cost / gram</th>
+            <th>Cost / g</th>
+            <th>Markup %</th>
         </tr>
-        {% for herb in herbs %}
+    </thead>
+    <tbody>
+    {% for herb in herbs %}
         <tr>
             <td>{{ herb.name }}</td>
-            <td>${{ "%.4f"|format(herb.cost_per_gram) }}</td>
+            <td>{{ "%.4f"|format(herb.cost_per_gram) }}</td>
+            <td>
+                <input
+                    type="number"
+                    step="0.01"
+                    value="{{ herb.markup_percent }}"
+                    onchange="updateMarkup({{ herb.id }}, this.value)"
+                />
+            </td>
         </tr>
-        {% endfor %}
-    </table>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+async function updateMarkup(id, value) {
+    await fetch(`/herbs/${id}/markup?markup_percent=${value}`, {
+        method: "PATCH"
+    });
+}
+</script>
+
 </body>
 </html>
