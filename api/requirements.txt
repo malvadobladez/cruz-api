@@ -4,3 +4,4 @@ jinja2
 sqlalchemy
 alembic
 psycopg2-binary
+openai>=1.0.0
